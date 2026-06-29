@@ -1,0 +1,640 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Volex — A Minecraft client built different</title>
+    <meta name="description" content="Volex is a fast, modern Minecraft client with Modrinth built in, automatic Java management, and a clean interface that gets out of your way." />
+    <meta property="og:title" content="Volex — A Minecraft client built different" />
+    <meta property="og:description" content="Fast. Modern. Yours." />
+    <meta property="og:type" content="website" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --accent:      #e2462c;
+            --accent-dim:  #b5331c;
+            --accent-soft: rgba(226, 70, 44, 0.12);
+            --bg:          #0a0908;
+            --bg-card:     #121110;
+            --bg-raised:   #161412;
+            --border:      #211e1a;
+            --border-hi:   #332e27;
+            --text:        #ece7df;
+            --text-dim:    #8d867a;
+            --text-mute:   #4a443c;
+            --mono:        'JetBrains Mono', ui-monospace, monospace;
+            --display:     'Space Grotesk', ui-sans-serif, sans-serif;
+            --sans:        'Inter', ui-sans-serif, sans-serif;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #221f1a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #332e27; }
+
+        /* ── Nav ── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 48px;
+            height: 58px;
+            background: rgba(10, 9, 8, 0.9);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+
+        .nav-logo-icon {
+            width: 26px; height: 26px;
+            background: var(--accent);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--display);
+            font-weight: 700;
+            font-size: 13px;
+            color: #0a0908;
+        }
+
+        .nav-logo-text {
+            font-family: var(--display);
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text);
+            letter-spacing: -0.2px;
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 30px; list-style: none; }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+
+        .nav-cta {
+            background: var(--accent);
+            color: #0a0908 !important;
+            padding: 7px 16px;
+            border-radius: 3px;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            transition: background 0.15s !important;
+        }
+
+        .nav-cta:hover { background: var(--accent-dim) !important; }
+
+        /* ── Hero ── */
+        .hero {
+            min-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 130px 24px 70px;
+            position: relative;
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.045) 1px, transparent 0);
+            background-size: 28px 28px;
+            opacity: 0;
+            animation: settle 0.5s ease forwards 0.05s;
+        }
+
+        .hero-eyebrow {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--accent);
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .hero-eyebrow::before { content: '> '; color: var(--text-mute); }
+
+        .hero-title {
+            font-family: var(--display);
+            font-size: clamp(44px, 7vw, 78px);
+            font-weight: 700;
+            letter-spacing: -2px;
+            line-height: 1.04;
+            margin-bottom: 22px;
+        }
+
+        .hero-title span { color: var(--accent); }
+
+        .hero-sub {
+            font-size: 17px;
+            color: var(--text-dim);
+            max-width: 520px;
+            line-height: 1.7;
+            margin-bottom: 36px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 12px 26px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+
+        .btn-primary { background: var(--accent); color: #0a0908; border: 1px solid var(--accent); }
+        .btn-primary:hover { background: var(--accent-dim); border-color: var(--accent-dim); }
+
+        .btn-primary.disabled {
+            background: transparent;
+            color: var(--text-mute);
+            border: 1px dashed var(--border-hi);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-dim);
+            font-weight: 500;
+            border: 1px solid var(--border-hi);
+        }
+        .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+
+        .hero-screenshot {
+            margin-top: 64px;
+            width: 100%;
+            max-width: 980px;
+            border-radius: 6px;
+            border: 1px solid var(--border-hi);
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+
+        .window-chrome {
+            background: var(--bg-raised);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .chrome-dot { width: 9px; height: 9px; border-radius: 2px; background: var(--border-hi); }
+
+        .chrome-title {
+            margin-left: 8px;
+            font-size: 12px;
+            color: var(--text-mute);
+            font-family: var(--mono);
+        }
+
+        .shot-img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background: var(--bg-card);
+        }
+
+        /* ── Sections shared ── */
+        section { padding: 88px 24px; max-width: 1080px; margin: 0 auto; }
+
+        .section-eyebrow {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--accent);
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: var(--display);
+            font-size: clamp(26px, 3.4vw, 38px);
+            font-weight: 600;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+        }
+
+        .section-sub {
+            font-size: 15px;
+            color: var(--text-dim);
+            max-width: 480px;
+            line-height: 1.7;
+            margin-bottom: 52px;
+        }
+
+        /* ── Specs readout ── */
+        .specs-panel {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-card);
+            font-family: var(--mono);
+            font-size: 13px;
+            overflow: hidden;
+            margin-top: -20px;
+            margin-bottom: 0;
+        }
+
+        .specs-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 13px 22px;
+            border-bottom: 1px solid var(--border);
+        }
+        .specs-row:last-child { border-bottom: none; }
+        .specs-key { color: var(--text-dim); }
+        .specs-key::before { content: '$ '; color: var(--text-mute); }
+        .specs-val { color: var(--accent); font-weight: 500; }
+
+        /* ── Features ── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .feature-card { background: var(--bg-card); padding: 30px; transition: background 0.15s; }
+        .feature-card:hover { background: var(--bg-raised); }
+
+        .feature-chip {
+            width: 36px; height: 36px;
+            border: 1px solid var(--border-hi);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            margin-bottom: 18px;
+        }
+
+        .feature-title {
+            font-family: var(--display);
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .feature-desc { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+
+        /* ── Screenshots ── */
+        .screenshots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        .screenshot-card {
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: border-color 0.15s;
+            background: var(--bg-card);
+        }
+        .screenshot-card:hover { border-color: var(--border-hi); }
+
+        .screenshot-label {
+            background: var(--bg-raised);
+            border-top: 1px solid var(--border);
+            padding: 10px 14px;
+            font-size: 12px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+        }
+
+        /* ── Discord / Nitro CTA ── */
+        .discord-section { max-width: 1080px; margin: 0 auto; padding: 0 24px 88px; }
+
+        .discord-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 48px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .discord-card-eyebrow {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--accent);
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .discord-card-title {
+            font-family: var(--display);
+            font-size: clamp(22px, 2.8vw, 30px);
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+
+        .discord-card-sub {
+            font-size: 14px;
+            color: var(--text-dim);
+            max-width: 480px;
+            line-height: 1.7;
+        }
+
+        .discord-steps {
+            list-style: none;
+            margin-top: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-family: var(--mono);
+            font-size: 12.5px;
+            color: var(--text-dim);
+        }
+        .discord-steps span { color: var(--accent); margin-right: 10px; }
+
+        .discord-btn {
+            background: #5865F2;
+            color: #fff;
+            padding: 13px 26px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .discord-btn:hover { background: #4752c4; }
+        .discord-icon { width: 20px; height: 20px; fill: white; }
+
+        /* ── Footer ── */
+        footer {
+            border-top: 1px solid var(--border);
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 26px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+
+        .footer-logo-icon {
+            width: 22px; height: 22px;
+            background: var(--accent);
+            border-radius: 3px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--display);
+            font-weight: 700;
+            font-size: 11px;
+            color: #0a0908;
+        }
+
+        .footer-logo-text { font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--text); }
+        .footer-copy { font-size: 12px; color: var(--text-mute); font-family: var(--mono); }
+
+        .footer-links { display: flex; gap: 22px; list-style: none; }
+        .footer-links a { font-size: 12px; color: var(--text-mute); text-decoration: none; transition: color 0.15s; }
+        .footer-links a:hover { color: var(--text-dim); }
+
+        @keyframes settle {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 0 20px; }
+            .nav-links { gap: 18px; }
+            .nav-links li.hide-mobile { display: none; }
+            .hero { padding: 110px 20px 56px; }
+            .hero-title { letter-spacing: -1px; }
+            section { padding: 60px 20px; }
+            .screenshots-grid { grid-template-columns: 1fr; }
+            .specs-row { padding: 12px 18px; }
+            .discord-card { grid-template-columns: 1fr; padding: 32px 24px; text-align: left; }
+            footer { flex-direction: column; align-items: flex-start; padding: 22px 20px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#top" class="nav-logo">
+        <span class="nav-logo-icon">V</span>
+        <span class="nav-logo-text">Volex</span>
+    </a>
+    <ul class="nav-links">
+        <li class="hide-mobile"><a href="#features">Features</a></li>
+        <li class="hide-mobile"><a href="#screenshots">Screenshots</a></li>
+        <li class="hide-mobile"><a href="#discord">Discord</a></li>
+        <li><a href="#discord" class="nav-cta">Get notified</a></li>
+    </ul>
+</nav>
+
+<header class="hero" id="top">
+    <p class="hero-eyebrow">open beta — coming soon</p>
+    <h1 class="hero-title">Your client.<br/><span>Built different.</span></h1>
+    <p class="hero-sub">
+        A fast, modern Minecraft client with Modrinth built in, Java handled
+        automatically, and an interface that gets out of the way.
+    </p>
+    <div class="hero-actions">
+        <span class="btn-primary disabled">Download — coming soon</span>
+        <a href="#discord" class="btn-secondary">Join the Discord</a>
+    </div>
+
+    <div class="hero-screenshot">
+        <div class="window-chrome">
+            <span class="chrome-dot"></span>
+            <span class="chrome-dot"></span>
+            <span class="chrome-dot"></span>
+            <span class="chrome-title">Volex 1.0.0</span>
+        </div>
+        <img class="shot-img" src="assets/screenshot1.png" alt="Volex client home" />
+    </div>
+</header>
+
+<section style="padding-top: 0; padding-bottom: 0;">
+    <div class="specs-panel">
+        <div class="specs-row"><span class="specs-key">asset_download</span><span class="specs-val">32 parallel threads</span></div>
+        <div class="specs-row"><span class="specs-key">java_runtime</span><span class="specs-val">auto-detected &amp; installed</span></div>
+        <div class="specs-row"><span class="specs-key">modpack_source</span><span class="specs-val">modrinth, in-app</span></div>
+        <div class="specs-row"><span class="specs-key">manual_setup</span><span class="specs-val">none</span></div>
+    </div>
+</section>
+
+<section id="features">
+    <p class="section-eyebrow">What's inside</p>
+    <h2 class="section-title">Everything you need.<br/>Nothing you don't.</h2>
+    <p class="section-sub">Volex strips away the bloat and gives you a client that stays out of your way.</p>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-chip">MR</div>
+            <h3 class="feature-title">Modrinth, built in</h3>
+            <p class="feature-desc">Browse, search, and install any modpack from Modrinth directly inside the client. No browser tabs, no manual downloads.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-chip">JV</div>
+            <h3 class="feature-title">Java handled for you</h3>
+            <p class="feature-desc">Volex detects the Java version each Minecraft release needs and installs it silently if it's missing.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-chip">32x</div>
+            <h3 class="feature-title">Parallel downloads</h3>
+            <p class="feature-desc">Assets download across 32 parallel threads instead of one at a time. What used to take minutes takes seconds.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-chip">GC</div>
+            <h3 class="feature-title">Aikar's GC flags</h3>
+            <p class="feature-desc">Every instance launches with battle-tested JVM flags that reduce lag spikes and smooth out frame times.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-chip">IM</div>
+            <h3 class="feature-title">Instance manager</h3>
+            <p class="feature-desc">Run multiple versions and modpacks side by side, each with its own RAM allocation and isolated settings.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-chip">$_</div>
+            <h3 class="feature-title">Live console</h3>
+            <p class="feature-desc">Watch game output in real time from inside the client. No digging through log files when something breaks.</p>
+        </div>
+    </div>
+</section>
+
+<section id="screenshots">
+    <p class="section-eyebrow">In the wild</p>
+    <h2 class="section-title">See it for yourself.</h2>
+    <p class="section-sub">Clean, dark, and out of your way — the way a client should be.</p>
+
+    <div class="screenshots-grid">
+        <figure class="screenshot-card">
+            <div class="window-chrome">
+                <span class="chrome-dot"></span><span class="chrome-dot"></span><span class="chrome-dot"></span>
+                <span class="chrome-title">Home</span>
+            </div>
+            <img class="shot-img" src="assets/screenshot1.png" alt="Volex home" />
+            <figcaption class="screenshot-label">Home — your worlds, one click away</figcaption>
+        </figure>
+
+        <figure class="screenshot-card">
+            <div class="window-chrome">
+                <span class="chrome-dot"></span><span class="chrome-dot"></span><span class="chrome-dot"></span>
+                <span class="chrome-title">Instances</span>
+            </div>
+            <img class="shot-img" src="assets/screenshot2.png" alt="Instance manager" />
+            <figcaption class="screenshot-label">Instances — every version in one place</figcaption>
+        </figure>
+
+        <figure class="screenshot-card">
+            <div class="window-chrome">
+                <span class="chrome-dot"></span><span class="chrome-dot"></span><span class="chrome-dot"></span>
+                <span class="chrome-title">Modrinth</span>
+            </div>
+            <img class="shot-img" src="assets/screenshot3.png" alt="Modrinth browser" />
+            <figcaption class="screenshot-label">Modrinth — search and install modpacks</figcaption>
+        </figure>
+
+        <figure class="screenshot-card">
+            <div class="window-chrome">
+                <span class="chrome-dot"></span><span class="chrome-dot"></span><span class="chrome-dot"></span>
+                <span class="chrome-title">Console</span>
+            </div>
+            <img class="shot-img" src="assets/screenshot4.png" alt="Live console" />
+            <figcaption class="screenshot-label">Console — real-time game output</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="discord-section" id="discord" style="padding-top: 0;">
+    <div class="discord-card">
+        <div>
+            <p class="discord-card-eyebrow">Nitro giveaway · live now</p>
+            <h2 class="discord-card-title">Invite friends. Win Discord Nitro.</h2>
+            <p class="discord-card-sub">
+                Every invite you bring to the Volex Discord is an entry into our
+                Nitro giveaway. Top inviters win Nitro each month — and everyone
+                gets early access to the beta drop.
+            </p>
+            <ol class="discord-steps">
+                <li><span>01</span>Join the Volex Discord</li>
+                <li><span>02</span>Grab your personal invite link</li>
+                <li><span>03</span>Share it — every join counts as an entry</li>
+            </ol>
+        </div>
+        <a href="https://discord.gg/volex" target="_blank" rel="noreferrer" class="discord-btn">
+            <svg class="discord-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3.2a.07.07 0 0 0-.073.034 13.7 13.7 0 0 0-.61 1.247 18.27 18.27 0 0 0-5.487 0 12.56 12.56 0 0 0-.62-1.247.073.073 0 0 0-.073-.034A19.736 19.736 0 0 0 5.677 4.37a.064.064 0 0 0-.03.027C2.058 9.69 1.07 14.86 1.555 19.96a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.073.073 0 0 0 .08-.027 14.21 14.21 0 0 0 1.226-1.994.072.072 0 0 0-.04-.1 13.1 13.1 0 0 1-1.872-.892.073.073 0 0 1-.008-.121c.126-.094.252-.192.372-.291a.07.07 0 0 1 .074-.01c3.927 1.793 8.18 1.793 12.061 0a.07.07 0 0 1 .075.01c.12.099.246.197.373.291a.073.073 0 0 1-.006.121 12.3 12.3 0 0 1-1.873.892.073.073 0 0 0-.038.1c.36.698.772 1.362 1.225 1.993a.072.072 0 0 0 .08.028 19.84 19.84 0 0 0 6.002-3.03.073.073 0 0 0 .03-.054c.58-5.894-.97-11.02-4.107-15.565a.058.058 0 0 0-.03-.028ZM8.02 16.857c-1.183 0-2.157-1.085-2.157-2.418 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.333-.955 2.418-2.157 2.418Zm7.974 0c-1.183 0-2.157-1.085-2.157-2.418 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.333-.946 2.418-2.157 2.418Z"/>
+            </svg>
+            Join the Discord
+        </a>
+    </div>
+</section>
+
+<footer>
+    <a href="#top" class="footer-left">
+        <span class="footer-logo-icon">V</span>
+        <span class="footer-logo-text">Volex</span>
+    </a>
+    <p class="footer-copy">© 2026 Volex. Not affiliated with Mojang or Microsoft.</p>
+    <ul class="footer-links">
+        <li><a href="https://discord.gg/volex" target="_blank" rel="noreferrer">Discord</a></li>
+        <li><a href="https://modrinth.com" target="_blank" rel="noreferrer">Modrinth</a></li>
+    </ul>
+</footer>
+
+</body>
+</html>
